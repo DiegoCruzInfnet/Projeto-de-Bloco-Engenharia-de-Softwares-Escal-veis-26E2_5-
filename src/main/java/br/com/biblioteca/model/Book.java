@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class Book {
+public class Book extends AuditableEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,7 +18,8 @@ public class Book {
     @Embedded
     private BookDetails details;
 
-
-
+    public Book(BookDetails details) {
+        this.details = details;
+    }
 
 }

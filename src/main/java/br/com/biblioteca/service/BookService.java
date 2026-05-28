@@ -2,7 +2,6 @@ package br.com.biblioteca.service;
 
 import br.com.biblioteca.model.Book;
 import br.com.biblioteca.repository.BookRepository;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,5 +28,21 @@ public class BookService {
 
     public void deleteById(Long id) {
         bookRepository.deleteById(id);
+    }
+
+    public List<Book> findByAutor(String author) {
+        return bookRepository.findByDetailsAutor(author);
+    }
+
+    public List<Book> findByEditora(String editora) {
+        return bookRepository.findByDetailsEditora(editora);
+    }
+
+    public List<Book> findByTitulo(String titulo) {
+        return bookRepository.findByDetailsTitulo(titulo);
+    }
+
+    public List<Book> findByIsbn(String isbn) {
+        return bookRepository.findByDetailsIsbn(isbn);
     }
 }

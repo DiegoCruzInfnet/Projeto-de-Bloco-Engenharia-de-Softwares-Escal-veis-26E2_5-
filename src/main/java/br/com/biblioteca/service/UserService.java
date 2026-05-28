@@ -29,4 +29,17 @@ public class UserService {
     public void deleteById(Long id) {
         userRepository.deleteById(id);
     }
+
+    public List<User> findByEmail(String email) {
+        return userRepository.findByDetailsEmail(email);
+    }
+
+    public List<User> findByNome(String nome) {
+        return userRepository.findByDetailsNome(nome);
+    }
+
+    public List<User> findByTelefone(String telefone) {
+        return userRepository.findByDetailsTelefone(telefone);
+    }
+
 }

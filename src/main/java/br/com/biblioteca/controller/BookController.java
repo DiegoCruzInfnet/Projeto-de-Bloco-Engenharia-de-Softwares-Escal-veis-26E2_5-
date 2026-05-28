@@ -2,6 +2,7 @@ package br.com.biblioteca.controller;
 
 import br.com.biblioteca.model.Book;
 import br.com.biblioteca.service.BookService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<Book> save(@RequestBody Book book) {
+    public ResponseEntity<Book> save(@Valid @RequestBody Book book) {
         return ResponseEntity.ok(bookService.save(book));
     }
 
@@ -39,10 +40,30 @@ public class BookController {
 
     }
 
-    @PutMapping("/id")
-    public ResponseEntity<Book> update(@PathVariable Long id, @RequestBody Book book) {
+    @PutMapping("/{id}")
+    public ResponseEntity<Book> update(@PathVariable Long id,@Valid @RequestBody Book book) {
         return bookService.findById(id)
                 .map(existing -> ResponseEntity.ok(bookService.save(book)))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/titulo/{titulo}")
+    public List<Book> findByTitulo(@PathVariable String titulo) {
+        return bookService.findByTitulo(titulo);
+    }
+
+    @GetMapping("/autor/{autor}")
+    public List<Book> findByAutor(@PathVariable String autor) {
+        return bookService.findByAutor(autor);
+    }
+
+    @GetMapping("/editora/{editora}")
+    public List<Book> findByEditora(@PathVariable String editora) {
+        return bookService.findByEditora(editora);
+    }
+
+    @GetMapping("/isbn/{isbn}")
+    public List<Book> findByIsbn(@PathVariable String isbn) {
+        return bookService.findByIsbn(isbn);
     }
 }
