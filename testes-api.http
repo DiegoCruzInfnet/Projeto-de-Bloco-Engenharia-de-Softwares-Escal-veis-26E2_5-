@@ -1,0 +1,224 @@
+### ================================================
+### SISTEMA DE BIBLIOTECA - TESTES DE API
+### Execute cada requisição clicando no botão verde
+### ================================================
+
+### ================================================
+### LIVROS
+### ================================================
+
+### Cadastrar livro 1
+POST http://localhost:8080/book
+Content-Type: application/json
+
+{
+  "details": {
+    "titulo": "Clean Code",
+    "autor": "Robert C. Martin",
+    "isbn": "978-0132350884",
+    "genero": "Tecnologia",
+    "editora": "Prentice Hall"
+  }
+}
+
+### Cadastrar livro 2
+POST http://localhost:8080/book
+Content-Type: application/json
+
+{
+  "details": {
+    "titulo": "Clean Architecture",
+    "autor": "Robert C. Martin",
+    "isbn": "978-0134494166",
+    "genero": "Tecnologia",
+    "editora": "Prentice Hall"
+  }
+}
+
+### Cadastrar livro 3
+POST http://localhost:8080/book
+Content-Type: application/json
+
+{
+  "details": {
+    "titulo": "Domain-Driven Design",
+    "autor": "Eric Evans",
+    "isbn": "978-0321125217",
+    "genero": "Tecnologia",
+    "editora": "Addison-Wesley"
+  }
+}
+
+### Listar todos os livros
+GET http://localhost:8080/book
+
+### Buscar livro por ID
+GET http://localhost:8080/book/1
+
+### Buscar livro por título
+GET http://localhost:8080/book/titulo/Clean Code
+
+### Buscar livro por autor
+GET http://localhost:8080/book/autor/Robert C. Martin
+
+### Atualizar livro
+PUT http://localhost:8080/book/1
+Content-Type: application/json
+
+{
+  "details": {
+    "titulo": "Clean Code - Atualizado",
+    "autor": "Robert C. Martin",
+    "isbn": "978-0132350884",
+    "genero": "Tecnologia",
+    "editora": "Prentice Hall"
+  }
+}
+
+### Teste VALIDAÇÃO: Cadastrar livro sem título (deve retornar 400)
+POST http://localhost:8080/book
+Content-Type: application/json
+
+{
+  "details": {
+    "titulo": "",
+    "autor": "Robert C. Martin",
+    "isbn": "978-0000000001",
+    "genero": "Tecnologia",
+    "editora": "Prentice Hall"
+  }
+}
+
+
+### ================================================
+### USUÁRIOS
+### ================================================
+
+### Cadastrar usuário 1
+POST http://localhost:8080/user
+Content-Type: application/json
+
+{
+  "details": {
+    "nome": "Diego Cruz",
+    "email": "diego@email.com",
+    "telefone": "21999999999"
+  }
+}
+
+### Cadastrar usuário 2
+POST http://localhost:8080/user
+Content-Type: application/json
+
+{
+  "details": {
+    "nome": "Ana Silva",
+    "email": "ana@email.com",
+    "telefone": "21888888888"
+  }
+}
+
+### Listar todos os usuários
+GET http://localhost:8080/user
+
+### Buscar usuário por ID
+GET http://localhost:8080/user/1
+
+### Buscar usuário por nome
+GET http://localhost:8080/user/nome?nome=Diego Cruz
+
+### Buscar usuário por email
+GET http://localhost:8080/user/email/diego@email.com
+
+### Teste VALIDAÇÃO: Cadastrar usuário sem nome (deve retornar 400)
+POST http://localhost:8080/user
+Content-Type: application/json
+
+{
+  "details": {
+    "nome": "",
+    "email": "teste@email.com",
+    "telefone": "21777777777"
+  }
+}
+
+### Teste VALIDAÇÃO: Cadastrar usuário com email inválido (deve retornar 400)
+POST http://localhost:8080/user
+Content-Type: application/json
+
+{
+  "details": {
+    "nome": "Teste",
+    "email": "emailinvalido",
+    "telefone": "21777777777"
+  }
+}
+
+
+### ================================================
+### EMPRÉSTIMOS
+### ================================================
+
+### Criar empréstimo 1 (livro 1 para usuário 1)
+### Data de devolução gerada automaticamente: hoje + 30 dias
+POST http://localhost:8080/loan
+Content-Type: application/json
+
+{
+  "book": { "id": 1 },
+  "user": { "id": 1 }
+}
+
+### Criar empréstimo 2 (livro 2 para usuário 1)
+POST http://localhost:8080/loan
+Content-Type: application/json
+
+{
+  "book": { "id": 2 },
+  "user": { "id": 1 }
+}
+
+### Teste REGRA DE NEGÓCIO: 3º empréstimo para o mesmo usuário
+### Resultado esperado: ERRO - usuário já atingiu o limite de 2 empréstimos
+POST http://localhost:8080/loan
+Content-Type: application/json
+
+{
+  "book": { "id": 3 },
+  "user": { "id": 1 }
+}
+
+### Teste REGRA DE NEGÓCIO: Livro já emprestado
+### Resultado esperado: ERRO - livro indisponível
+POST http://localhost:8080/loan
+Content-Type: application/json
+
+{
+  "book": { "id": 1 },
+  "user": { "id": 2 }
+}
+
+### Listar todos os empréstimos
+GET http://localhost:8080/loan
+
+### Buscar empréstimo por ID
+GET http://localhost:8080/loan/1
+
+### Buscar empréstimos vencidos
+GET http://localhost:8080/loan/vencidos
+
+### Devolver livro (muda status para DEVOLVIDO)
+PUT http://localhost:8080/loan/devolver/1
+
+### Após devolução: criar novo empréstimo para usuário 1
+### Resultado esperado: SUCESSO - agora tem só 1 empréstimo ativo
+POST http://localhost:8080/loan
+Content-Type: application/json
+
+{
+  "book": { "id": 3 },
+  "user": { "id": 1 }
+}
+
+### Deletar empréstimo
+DELETE http://localhost:8080/loan/1
