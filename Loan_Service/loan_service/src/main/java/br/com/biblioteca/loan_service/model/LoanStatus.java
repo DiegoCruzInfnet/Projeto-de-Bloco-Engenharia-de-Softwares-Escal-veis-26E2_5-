@@ -1,4 +1,4 @@
-package br.com.biblioteca.model;
+package br.com.biblioteca.loan_service.model;
 
 public enum LoanStatus {
     ATIVO,
