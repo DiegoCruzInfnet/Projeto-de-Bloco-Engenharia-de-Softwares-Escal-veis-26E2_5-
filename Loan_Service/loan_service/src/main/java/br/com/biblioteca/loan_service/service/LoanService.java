@@ -1,10 +1,13 @@
 package br.com.biblioteca.loan_service.service;
 
 import br.com.biblioteca.loan_service.client.BibliotecaClient;
+import br.com.biblioteca.loan_service.config.RabbitMQConfig;
+import br.com.biblioteca.loan_service.event.LoanCreatedEvent;
 import br.com.biblioteca.loan_service.model.Loan;
 import br.com.biblioteca.loan_service.model.LoanStatus;
 import br.com.biblioteca.loan_service.repository.LoanRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,6 +20,7 @@ public class LoanService {
 
     private final LoanRepository loanRepository;
     private final BibliotecaClient bibliotecaClient;
+    private final RabbitTemplate rabbitTemplate;
 
     public Loan save(Loan loan) {
         // valida se livro existe
@@ -35,7 +39,18 @@ public class LoanService {
         if (qtd >= 2) {
             throw new IllegalStateException("Usuário já atingiu o número máximo de empréstimos!");
         }
-        return loanRepository.save(loan);
+        //return loanRepository.save(loan);
+        Loan salvo = loanRepository.save(loan);
+
+        LoanCreatedEvent event = new LoanCreatedEvent(
+                salvo.getId(),
+                salvo.getBookId(),
+                salvo.getUserId(),
+                salvo.getDetails().getDataEmprestimo(),
+                salvo.getDetails().getDataDevolucao()
+        );
+        rabbitTemplate.convertAndSend(RabbitMQConfig.LOAN_QUEUE, event);
+        return salvo;
     }
 
     public List<Loan> findAll() {
