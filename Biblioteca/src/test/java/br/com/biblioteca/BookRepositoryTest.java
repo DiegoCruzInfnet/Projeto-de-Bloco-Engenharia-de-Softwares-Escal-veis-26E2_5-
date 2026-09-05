@@ -39,20 +39,20 @@ class BookRepositoryTest {
     @Test
     void deveBuscarLivroPorTitulo() {
         bookRepository.save(book);
-        List<Book> livros = bookRepository.findByDetailsTitulo("Clean Code");
+        List<Book> livros = bookRepository.findByDetailsTituloContainingIgnoreCase("Clean Code");
         assertFalse(livros.isEmpty());
     }
 
     @Test
     void deveBuscarLivroPorAutor() {
         bookRepository.save(book);
-        List<Book> livros = bookRepository.findByDetailsAutor("Robert C. Martin");
+        List<Book> livros = bookRepository.findByDetailsAutorContainingIgnoreCase("Robert C. Martin");
         assertFalse(livros.isEmpty());
     }
 
     @Test
     void deveRetornarVazioQuandoLivroNaoExiste() {
-        List<Book> livros = bookRepository.findByDetailsTitulo("Livro Inexistente");
+        List<Book> livros = bookRepository.findByDetailsTituloContainingIgnoreCase("Livro Inexistente");
         assertTrue(livros.isEmpty());
     }
 }

@@ -1,5 +1,6 @@
 package br.com.biblioteca.service;
 
+import br.com.biblioteca.dto.UserResponseDTO;
 import br.com.biblioteca.model.User;
 import br.com.biblioteca.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,15 +32,31 @@ public class UserService {
     }
 
     public List<User> findByEmail(String email) {
-        return userRepository.findByDetailsEmail(email);
+        return userRepository.findByDetailsEmailContainingIgnoreCase(email);
     }
 
     public List<User> findByNome(String nome) {
-        return userRepository.findByDetailsNome(nome);
+        return userRepository.findByDetailsNomeContainingIgnoreCase(nome);
     }
 
     public List<User> findByTelefone(String telefone) {
         return userRepository.findByDetailsTelefone(telefone);
+    }
+
+    public UserResponseDTO toDTO(User user) {
+        return new UserResponseDTO(
+                user.getId(),
+                user.getDetails().getNome(),
+                user.getDetails().getEmail(),
+                user.getDetails().getTelefone()
+        );
+    }
+
+    public List<UserResponseDTO> findAllDTO() {
+        return userRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
 
 }

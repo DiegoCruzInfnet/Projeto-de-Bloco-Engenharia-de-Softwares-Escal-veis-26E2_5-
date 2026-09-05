@@ -1,5 +1,6 @@
 package br.com.biblioteca.loan_service.controller;
 
+import br.com.biblioteca.loan_service.DTO.LoanResponseDTO;
 import br.com.biblioteca.loan_service.model.Loan;
 import br.com.biblioteca.loan_service.service.LoanService;
 import jakarta.validation.Valid;
@@ -18,20 +19,23 @@ public class LoanController {
     private final LoanService loanService;
 
     @GetMapping
-    public List<Loan> findAll() {
-        return loanService.findAll();
+    public List<LoanResponseDTO> findAll() {
+        return loanService.findAllToDTO();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Loan> findById(@PathVariable Long id) {
+    public ResponseEntity<LoanResponseDTO> findById(@PathVariable Long id) {
         return loanService.findById(id)
-                .map(ResponseEntity::ok)
+                .map(loan -> ResponseEntity.ok(loanService.toDTO(loan)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/user/{userId}")
-    public List<Loan> findByUserId(@PathVariable Long userId) {
-        return loanService.findByUserId(userId);
+    public List<LoanResponseDTO> findByUserId(@PathVariable Long userId) {
+        return loanService.findByUserId(userId)
+                .stream()
+                .map(loanService::toDTO)
+                .toList();
     }
 
     @GetMapping("/book/{bookId}")
@@ -40,8 +44,11 @@ public class LoanController {
     }
 
     @GetMapping("/vencidos")
-    public List<Loan> findVencidos() {
-        return loanService.findEmprestimosVencidos();
+    public List<LoanResponseDTO> findVencidos() {
+        return loanService.findEmprestimosVencidos()
+                .stream()
+                .map(loanService::toDTO)
+                .toList();
     }
 
     @PostMapping

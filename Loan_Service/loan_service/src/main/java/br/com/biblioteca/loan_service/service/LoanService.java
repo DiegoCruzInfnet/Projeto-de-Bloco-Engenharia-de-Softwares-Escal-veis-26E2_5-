@@ -1,5 +1,6 @@
 package br.com.biblioteca.loan_service.service;
 
+import br.com.biblioteca.loan_service.DTO.LoanResponseDTO;
 import br.com.biblioteca.loan_service.client.BibliotecaClient;
 import br.com.biblioteca.loan_service.config.RabbitMQConfig;
 import br.com.biblioteca.loan_service.event.LoanCreatedEvent;
@@ -82,5 +83,23 @@ public class LoanService {
 
     public void deleteById(Long id) {
         loanRepository.deleteById(id);
+    }
+
+    public LoanResponseDTO toDTO(Loan loan) {
+        return new LoanResponseDTO(
+                loan.getId(),
+                loan.getBookId(),
+                loan.getUserId(),
+                loan.getDetails().getDataEmprestimo(),
+                loan.getDetails().getDataDevolucao(),
+                loan.getDetails().getStatus().name()
+        );
+    }
+
+    public List<LoanResponseDTO> findAllToDTO() {
+        return loanRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
 }

@@ -1,5 +1,6 @@
 package br.com.biblioteca.controller;
 
+import br.com.biblioteca.dto.BookResponseDTO;
 import br.com.biblioteca.model.Book;
 import br.com.biblioteca.service.BookService;
 import jakarta.validation.Valid;
@@ -17,14 +18,14 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
-    public List<Book> findAll() {
-        return bookService.findAll();
+    public List<BookResponseDTO> findAll() {
+        return bookService.findAllDTO();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Book> findById(@PathVariable Long id) {
+    public ResponseEntity<BookResponseDTO> findById(@PathVariable Long id) {
         return bookService.findById(id)
-                .map(ResponseEntity::ok)
+                .map(book -> ResponseEntity.ok(bookService.toDTO(book)))
                 .orElse(ResponseEntity.notFound().build());
     }
 

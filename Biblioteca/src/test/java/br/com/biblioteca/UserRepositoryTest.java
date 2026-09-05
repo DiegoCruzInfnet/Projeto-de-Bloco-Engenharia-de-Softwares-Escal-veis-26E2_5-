@@ -49,14 +49,14 @@ public class UserRepositoryTest {
     @Test
     public void deveBuscarUserByEmail(){
         userRepository.save(testUser);
-        List<User> users = userRepository.findByDetailsEmail("teste@email.com");
+        List<User> users = userRepository.findByDetailsEmailContainingIgnoreCase("teste@email.com");
         assertFalse(users.isEmpty());
     }
 
     @Test
     public void deveBuscarUserByNome(){
         User userSalvo = userRepository.save(testUser);
-        List<User> users = userRepository.findByDetailsNome("UserNomeTest");
+        List<User> users = userRepository.findByDetailsNomeContainingIgnoreCase("UserNomeTest");
         assertFalse(users.isEmpty());
     }
     @Test

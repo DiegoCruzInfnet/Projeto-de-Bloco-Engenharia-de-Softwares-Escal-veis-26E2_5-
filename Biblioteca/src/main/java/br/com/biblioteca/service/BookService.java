@@ -1,5 +1,6 @@
 package br.com.biblioteca.service;
 
+import br.com.biblioteca.dto.BookResponseDTO;
 import br.com.biblioteca.model.Book;
 import br.com.biblioteca.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,18 +32,36 @@ public class BookService {
     }
 
     public List<Book> findByAutor(String author) {
-        return bookRepository.findByDetailsAutor(author);
+        return bookRepository.findByDetailsAutorContainingIgnoreCase(author);
     }
 
     public List<Book> findByEditora(String editora) {
-        return bookRepository.findByDetailsEditora(editora);
+        return bookRepository.findByDetailsEditoraContainingIgnoreCase(editora);
     }
 
     public List<Book> findByTitulo(String titulo) {
-        return bookRepository.findByDetailsTitulo(titulo);
+        return bookRepository.findByDetailsTituloContainingIgnoreCase(titulo);
     }
 
     public List<Book> findByIsbn(String isbn) {
         return bookRepository.findByDetailsIsbn(isbn);
+    }
+
+    public BookResponseDTO toDTO(Book book) {
+        return new BookResponseDTO(
+                book.getId(),
+                book.getDetails().getTitulo(),
+                book.getDetails().getAutor(),
+                book.getDetails().getIsbn(),
+                book.getDetails().getGenero(),
+                book.getDetails().getEditora()
+        );
+    }
+
+    public List<BookResponseDTO> findAllDTO() {
+        return bookRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
 }

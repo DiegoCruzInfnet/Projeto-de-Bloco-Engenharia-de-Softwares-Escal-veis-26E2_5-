@@ -1,5 +1,6 @@
 package br.com.biblioteca.controller;
 
+import br.com.biblioteca.dto.UserResponseDTO;
 import br.com.biblioteca.model.Book;
 import br.com.biblioteca.model.User;
 import br.com.biblioteca.service.UserService;
@@ -19,14 +20,14 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> findAll() {
-        return userService.findAll();
+    public List<UserResponseDTO> findAll() {
+        return userService.findAllDTO();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> findById(@PathVariable Long id) {
+    public ResponseEntity<UserResponseDTO> findById(@PathVariable Long id) {
         return userService.findById(id)
-                .map(ResponseEntity::ok)
+                .map(user -> ResponseEntity.ok(userService.toDTO(user)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -50,18 +51,27 @@ public class UserController {
     }
 
     @GetMapping("/email/{email}")
-    public List<User> findByEmail(@PathVariable String email) {
-        return userService.findByEmail(email);
+    public List<UserResponseDTO> findByEmail(@PathVariable String email) {
+        return userService.findByEmail(email)
+                .stream()
+                .map(userService::toDTO)
+                .toList();
     }
 
     @GetMapping("/nome/{nome}")
-    public List<User> findByNome(@PathVariable String nome) {
-        return userService.findByNome(nome);
+    public List<UserResponseDTO> findByNome(@PathVariable String nome) {
+        return userService.findByNome(nome)
+                .stream()
+                .map(userService::toDTO)
+                .toList();
     }
 
     @GetMapping("/telefone/{telefone}")
-    public List<User> findByTelefone(@PathVariable String telefone) {
-        return userService.findByTelefone(telefone);
+    public List<UserResponseDTO> findByTelefone(@PathVariable String telefone) {
+        return userService.findByTelefone(telefone)
+                .stream()
+                .map(userService::toDTO)
+                .toList();
     }
 
 }
