@@ -17,4 +17,13 @@ public class LoanCreatedEvent {
     public Long getUserId() { return userId; }
     public LocalDate getDataEmprestimo() { return dataEmprestimo; }
     public LocalDate getDataDevolucao() { return dataDevolucao; }
+
+    public LoanCreatedEvent(Long loanId, Long bookId, Long userId,
+                            LocalDate dataEmprestimo, LocalDate dataDevolucao) {
+        this.loanId = loanId;
+        this.bookId = bookId;
+        this.userId = userId;
+        this.dataEmprestimo = dataEmprestimo;
+        this.dataDevolucao = dataDevolucao;
+    }
 }
