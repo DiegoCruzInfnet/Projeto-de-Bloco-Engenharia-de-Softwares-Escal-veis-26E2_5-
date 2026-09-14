@@ -1,0 +1,129 @@
+services:
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - biblioteca-network
+    restart: on-failure
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - biblioteca-network
+    restart: on-failure
+
+  eureka-server:
+    build: ./Eureka_Sever/eureka_sever
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - biblioteca-network
+    restart: on-failure
+
+  biblioteca:
+    build: ./Biblioteca
+    container_name: biblioteca
+    ports:
+      - "8080:8080"
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - eureka-server
+      - postgres
+    networks:
+      - biblioteca-network
+    restart: on-failure
+
+  loan-service:
+    build: ./Loan_Service/loan_service
+    container_name: loan-service
+    ports:
+      - "8082:8080"
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      - eureka-server
+      - postgres
+      - rabbitmq
+    networks:
+      - biblioteca-network
+    restart: on-failure
+
+  avaliacao-service:
+    build: ./Avaliacao_Service/avaliacao_service
+    container_name: avaliacao-service
+    ports:
+      - "8081:8080"
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - eureka-server
+      - postgres
+    networks:
+      - biblioteca-network
+    restart: on-failure
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports:
+      - "8083:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      - eureka-server
+      - rabbitmq
+    networks:
+      - biblioteca-network
+    restart: on-failure
+
+  frontend:
+    build: ./Biblioteca/frontend
+    container_name: biblioteca-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - biblioteca
+      - loan-service
+      - avaliacao-service
+    networks:
+      - biblioteca-network
+    restart: on-failure
+
+networks:
+  biblioteca-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+

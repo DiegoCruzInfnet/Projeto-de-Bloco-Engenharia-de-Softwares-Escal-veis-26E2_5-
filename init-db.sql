@@ -1,0 +1,3 @@
+CREATE DATABASE biblioteca;
+CREATE DATABASE loan;
+CREATE DATABASE avaliacao;

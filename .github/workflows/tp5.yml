@@ -1,0 +1,81 @@
+name: TP5 - CI/CD
+
+on:
+  push:
+    branches:
+      - tp5
+      - main
+  pull_request:
+    branches:
+      - tp5
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Test Biblioteca
+        run: mvn -B test -f Biblioteca/pom.xml
+
+      - name: Test Loan Service
+        run: mvn -B test -f Loan_Service/loan_service/pom.xml
+
+      - name: Test Avaliacao Service
+        run: mvn -B test -f Avaliacao_Service/avaliacao_service/pom.xml
+
+      - name: Test Notification Service
+        run: mvn -B test -f notification-service/pom.xml
+
+      - name: Build Frontend
+        working-directory: Biblioteca/frontend
+        run: |
+          npm ci
+          npm run build
+
+  docker:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login no GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build e push das imagens
+        env:
+          REGISTRY: ghcr.io/${{ github.repository_owner }}
+        run: |
+          docker build -t $REGISTRY/eureka-server:latest ./Eureka_Sever/eureka_sever
+          docker build -t $REGISTRY/biblioteca:latest ./Biblioteca
+          docker build -t $REGISTRY/loan-service:latest ./Loan_Service/loan_service
+          docker build -t $REGISTRY/avaliacao-service:latest ./Avaliacao_Service/avaliacao_service
+          docker build -t $REGISTRY/notification-service:latest ./notification-service
+          docker build -t $REGISTRY/biblioteca-frontend:latest ./Biblioteca/frontend
+
+          docker push $REGISTRY/eureka-server:latest
+          docker push $REGISTRY/biblioteca:latest
+          docker push $REGISTRY/loan-service:latest
+          docker push $REGISTRY/avaliacao-service:latest
+          docker push $REGISTRY/notification-service:latest
+          docker push $REGISTRY/biblioteca-frontend:latest

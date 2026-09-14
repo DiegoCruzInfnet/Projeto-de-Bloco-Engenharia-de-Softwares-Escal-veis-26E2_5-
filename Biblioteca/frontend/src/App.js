@@ -12,12 +12,12 @@ function App() {
     const booksPerPage = 5;
 
     useEffect(() => {
-        fetch("http://localhost:8080/book")
+        fetch("/book")
             .then((res) => res.json())
             .then((data) => {
                 setBooks(data);
                 data.forEach((book) => {
-                    fetch(`http://localhost:8082/loan/book/${book.id}`)
+                    fetch(`/loan/book/${book.id}`)
                         .then((res) => res.json())
                         .then((loans) => {
                             const ativo = loans.some((l) => l.details?.status === "ATIVO");
@@ -35,7 +35,7 @@ function App() {
 
     const selecionarLivro = (book) => {
         setSelectedBook(book);
-        fetch(`http://localhost:8081/avaliacao/livro/${book.id}`)
+        fetch(`/avaliacao/livro/${book.id}`)
             .then((res) => res.json())
             .then((data) => setAvaliacoes(data));
     };
@@ -47,7 +47,7 @@ function App() {
     };
 
     const enviarAvaliacao = () => {
-        fetch("http://localhost:8081/avaliacao", {
+        fetch("/avaliacao", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
