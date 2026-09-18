@@ -3,6 +3,8 @@ services:
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq
+    labels:
+      - "logging=promtail"
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -16,6 +18,8 @@ services:
   postgres:
     image: postgres:15
     container_name: postgres
+    labels:
+      - "logging=promtail"
     ports:
       - "5432:5432"
     environment:
@@ -31,6 +35,8 @@ services:
   eureka-server:
     build: ./Eureka_Sever/eureka_sever
     container_name: eureka-server
+    labels:
+      - "logging=promtail"
     ports:
       - "8761:8761"
     environment:
@@ -42,6 +48,8 @@ services:
   biblioteca:
     build: ./Biblioteca
     container_name: biblioteca
+    labels:
+      - "logging=promtail"
     ports:
       - "8080:8080"
     environment:
@@ -57,6 +65,8 @@ services:
   loan-service:
     build: ./Loan_Service/loan_service
     container_name: loan-service
+    labels:
+      - "logging=promtail"
     ports:
       - "8082:8080"
     environment:
@@ -77,6 +87,8 @@ services:
   avaliacao-service:
     build: ./Avaliacao_Service/avaliacao_service
     container_name: avaliacao-service
+    labels:
+      - "logging=promtail"
     ports:
       - "8081:8080"
     environment:
@@ -92,6 +104,8 @@ services:
   notification-service:
     build: ./notification-service
     container_name: notification-service
+    labels:
+      - "logging=promtail"
     ports:
       - "8083:8080"
     environment:
@@ -110,6 +124,8 @@ services:
   frontend:
     build: ./Biblioteca/frontend
     container_name: biblioteca-frontend
+    labels:
+      - "logging=promtail"
     ports:
       - "3000:80"
     depends_on:
@@ -120,10 +136,84 @@ services:
       - biblioteca-network
     restart: on-failure
 
+  tempo:
+    image: grafana/tempo:2.5.0
+    container_name: tempo
+    command: ["-config.file=/etc/tempo/tempo-config.yaml"]
+    volumes:
+      - ./monitoring/tempo-config.yaml:/etc/tempo/tempo-config.yaml
+      - tempo_data:/var/tempo
+    ports:
+      - "9411:9411"
+      - "3200:3200"
+    networks:
+      - biblioteca-network
+    restart: on-failure
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: prometheus
+    command: ["--config.file=/etc/prometheus/prometheus.yml"]
+    volumes:
+      - ./monitoring/prometheus-config.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - biblioteca-network
+    restart: on-failure
+
+  loki:
+    image: grafana/loki:2.9.6
+    container_name: loki
+    command: ["-config.file=/etc/loki/loki-config.yaml"]
+    volumes:
+      - ./monitoring/loki-config.yaml:/etc/loki/loki-config.yaml
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+    networks:
+      - biblioteca-network
+    restart: on-failure
+
+  promtail:
+    image: grafana/promtail:2.9.6
+    container_name: promtail
+    command: ["-config.file=/etc/promtail/promtail-config.yaml"]
+    volumes:
+      - ./monitoring/promtail-config.yaml:/etc/promtail/promtail-config.yaml
+      - promtail_positions:/run/promtail
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - loki
+    networks:
+      - biblioteca-network
+    restart: on-failure
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: grafana
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+    volumes:
+      - ./monitoring/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+    networks:
+      - biblioteca-network
+    restart: on-failure
+
 networks:
   biblioteca-network:
     driver: bridge
 
 volumes:
+  promtail_positions:
+  tempo_data:
+  loki_data:
   postgres_data:
 

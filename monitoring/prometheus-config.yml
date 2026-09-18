@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'biblioteca'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['biblioteca:8080']
+
+  - job_name: 'loan-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['loan-service:8080']
+
+  - job_name: 'avaliacao-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['avaliacao-service:8080']
+
+  - job_name: 'notification-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['notification-service:8080']
