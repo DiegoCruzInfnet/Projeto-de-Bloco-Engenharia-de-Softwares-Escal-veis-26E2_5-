@@ -103,9 +103,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build e push das imagens
-        env:
-          REGISTRY: ghcr.io/${{ github.repository_owner }}
         run: |
+          REGISTRY=ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+
           docker build -t $REGISTRY/eureka-server:latest ./Eureka_Sever/eureka_sever
           docker build -t $REGISTRY/biblioteca:latest ./Biblioteca
           docker build -t $REGISTRY/loan-service:latest ./Loan_Service/loan_service
