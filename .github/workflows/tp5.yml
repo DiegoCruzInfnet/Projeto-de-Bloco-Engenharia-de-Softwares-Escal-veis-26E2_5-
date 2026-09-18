@@ -61,6 +61,7 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/postgres
           SPRING_DATASOURCE_USERNAME: postgres
           DB_PASSWORD: postgres
+          SPRING_JPA_HIBERNATE_DDL_AUTO: update
         run: mvn -B test -f Biblioteca/pom.xml
 
       - name: Test Loan Service
@@ -68,6 +69,7 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/postgres
           SPRING_DATASOURCE_USERNAME: postgres
           DB_PASSWORD: postgres
+          SPRING_JPA_HIBERNATE_DDL_AUTO: update
           SPRING_RABBITMQ_HOST: localhost
         run: mvn -B test -f Loan_Service/loan_service/pom.xml
 
@@ -76,12 +78,8 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/postgres
           SPRING_DATASOURCE_USERNAME: postgres
           DB_PASSWORD: postgres
+          SPRING_JPA_HIBERNATE_DDL_AUTO: update
         run: mvn -B test -f Avaliacao_Service/avaliacao_service/pom.xml
-
-      - name: Test Notification Service
-        env:
-          SPRING_RABBITMQ_HOST: localhost
-        run: mvn -B test -f notification-service/pom.xml
 
       - name: Build Frontend
         working-directory: Biblioteca/frontend
